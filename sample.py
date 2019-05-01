@@ -24,6 +24,7 @@ def load_image(image_path, transform=None):
 
 
 def main(args):
+    dirname = os.path.dirname(__file__)
     # Image preprocessing
     transform = transforms.Compose([
         transforms.ToTensor(),
@@ -31,7 +32,8 @@ def main(args):
                              (0.229, 0.224, 0.225))])
 
     # Load vocabulary wrapper
-    with open(args.vocab_path, 'rb') as f:
+    vocab_path = dirname + '/' + args.vocab_path
+    with open(vocab_path, 'rb') as f:
         vocab = pickle.load(f)
 
     # Build models
@@ -41,8 +43,10 @@ def main(args):
     decoder = decoder.to(device)
 
     # Load the trained model parameters
-    encoder.load_state_dict(torch.load(args.encoder_path))
-    decoder.load_state_dict(torch.load(args.decoder_path))
+    encoder_path = dirname + '/' + args.encoder_path
+    decoder_path = dirname + '/' + args.decoder_path
+    encoder.load_state_dict(torch.load(encoder_path))
+    decoder.load_state_dict(torch.load(decoder_path))
 
     # Prepare an image
     image = load_image(args.image, transform)
@@ -71,11 +75,11 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--image', type=str, required=True, help='input image for generating caption')
-    parser.add_argument('--encoder_path', type=str, default='/Users/yyd/Desktop/image_captioning/models/encoder-5-3000.pkl',
+    parser.add_argument('--encoder_path', type=str, default='models/encoder-5-3000.pkl',
                         help='path for trained encoder')
-    parser.add_argument('--decoder_path', type=str, default='/Users/yyd/Desktop/image_captioning/models/decoder-5-3000.pkl',
+    parser.add_argument('--decoder_path', type=str, default='models/decoder-5-3000.pkl',
                         help='path for trained decoder')
-    parser.add_argument('--vocab_path', type=str, default='/Users/yyd/Desktop/image_captioning/data/vocab.pkl', help='path for vocabulary wrapper')
+    parser.add_argument('--vocab_path', type=str, default='data/vocab.pkl', help='path for vocabulary wrapper')
 
     # Model parameters (should be same as paramters in train.py)
     parser.add_argument('--embed_size', type=int, default=256, help='dimension of word embedding vectors')
